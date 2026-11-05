@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vatroslav Mileusnić - everything as markdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #ecebe3; --ink: #1f2a22; --quiet: #6f7670; --rule: #d3d4c9; --accent: #3d7a4a; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --paper: #1e2226; --ink: #ece7dc; --quiet: #8f8a80; --rule: #33393f; --accent: #f0a04b; }
+  }
+  :root[data-theme="dark"] { --paper: #1e2226; --ink: #ece7dc; --quiet: #8f8a80; --rule: #33393f; --accent: #f0a04b; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); }
+  html { transition: background .25s; }
+  body { font-family: "Source Serif 4", Georgia, serif; font-size: 18px; line-height: 1.55; }
+
+  .frame { max-width: 1240px; margin: 0 auto; padding: 48px 40px 96px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--rule); padding-bottom: 14px; margin-bottom: 56px; }
+  header .name { font-family: Inter, system-ui, sans-serif; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--quiet); }
+  header .name b { color: var(--ink); font-weight: 500; }
+  header .hint { font-family: Inter, system-ui, sans-serif; font-size: 13px; color: var(--quiet); }
+  .theme-toggle { border: 1px solid var(--rule); background: none; color: var(--quiet); font-family: Inter, system-ui, sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 5px 10px; cursor: pointer; margin-left: 18px; }
+  .theme-toggle:hover { color: var(--ink); border-color: var(--ink); }
+  .embedded header .name { visibility: hidden; }
+  .embedded .frame { padding-top: 20px; }
+  .embedded header { margin-bottom: 36px; }
+
+  .lead { max-width: 660px; }
+  .lead .one { font-size: 26px; line-height: 1.35; margin: 0 0 18px; text-wrap: balance; }
+  .lead p { color: var(--quiet); margin: 0 0 1.1em; }
+
+  .actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 32px 0 10px; }
+  .actions button { font-family: Inter, system-ui, sans-serif; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; padding: 10px 20px; border: 1px solid var(--rule); background: none; color: var(--ink); cursor: pointer; }
+  .actions button:hover { border-color: var(--accent); color: var(--accent); }
+  .actions .size { font-family: Inter, system-ui, sans-serif; font-size: 12px; color: var(--quiet); }
+
+  .prompt { margin: 28px 0 0; padding: 4px 0 4px 18px; border-left: 2px solid var(--accent); max-width: 660px; }
+  .prompt .label { font-family: Inter, system-ui, sans-serif; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--quiet); margin-bottom: 8px; }
+  .prompt .text { font-style: italic; }
+  .prompt button { margin-top: 10px; font-family: Inter, system-ui, sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 6px 12px; border: 1px solid var(--rule); background: none; color: var(--quiet); cursor: pointer; }
+  .prompt button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .previewLabel { font-family: Inter, system-ui, sans-serif; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--quiet); margin: 56px 0 10px; }
+  pre.md { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-word; color: var(--quiet); border-top: 1px solid var(--rule); padding: 18px 0 0; margin: 0; max-height: 55vh; overflow: auto; }
+
+  @media (max-width: 860px) {
+    .frame { padding: 24px 20px 64px; }
+    header { margin-bottom: 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="name"><b>Vatroslav Mileusnić</b> &nbsp;·&nbsp; <span data-ui="sub"></span></div>
+    <div class="hint"><span data-ui="hint"></span> <button class="theme-toggle" id="themeToggle"></button></div>
+  </header>
+
+  <div class="lead">
+    <p class="one" id="leadOne"></p>
+    <p data-ui="lead"></p>
+  </div>
+
+  <div class="actions">
+    <button id="copy" data-ui="copy"></button>
+    <button id="download" data-ui="download"></button>
+    <span class="size" id="size"></span>
+  </div>
+
+  <div class="prompt">
+    <div class="label" data-ui="promptLabel"></div>
+    <div class="text" id="promptText" data-ui="prompt"></div>
+    <button id="copyPrompt" data-ui="copyPrompt"></button>
+  </div>
+
+  <div class="previewLabel" data-ui="inFile"></div>
+  <pre class="md" id="preview"></pre>
+</div>
+
+<script src="stories.js"></script>
+<script>
+  const n = window.STORIES.length;
+  const UI = {
+    en: {
+      sub: "product manager, 13 years around software",
+      hint: "the same content, for reading by machine",
+      dark: "dark", light: "light",
+      leadOne: () => "Everything on this page as one markdown file - the terms, and all " + window.storyCount("en") + " stories at full length.",
+      lead: "If you would rather have an assistant read it than click through it: take the file, give it your job description, and ask where I fit and where I do not. Nothing is held back for the human version.",
+      copy: "Copy markdown", download: "Download .md", copied: "Copied", words: k => k.toLocaleString("en") + " words",
+      promptLabel: "a prompt to start from",
+      prompt: "Attached is a product manager's full profile, built from his own words. Here is our job description: [paste it]. Tell me where he matches and where he does not, what his terms would cost us, and the three things worth probing in a first call.",
+      copyPrompt: "Copy prompt", inFile: "what is in the file", file: "vatroslav-mileusnic.md",
+      md: {
+        context: "Product manager, 13 years around software. Based near Zagreb, Croatia, working remotely.",
+        about: today => "This file is the whole of my page for recruiters: the terms I am looking for, and every story at full length. Exported " + today + ". The stories are built from my own words; the headings above them are the kind of questions I get asked in interviews.",
+        oneLine: "In one line: ", follow: "Related questions: "
+      }
+    },
+    hr: {
+      sub: "product manager, 13 godina u softveru",
+      hint: "isti sadržaj, za strojno čitanje",
+      dark: "tamno", light: "svijetlo",
+      leadOne: () => { const w = window.storyCount("hr"); return "Sve s ove stranice kao jedan markdown file - uvjeti i " + window.plHr(n, "jedna priča", "sve " + w + " priče", "svih " + w + " priča") + " u punoj duljini."; },
+      lead: "Ako ti je draže da sadržaj umjesto tebe pročita asistent: uzmi file, daj mu svoj opis posla i pitaj ga gdje se uklapam, a gdje ne. Ništa nije zadržano samo za ljudsku verziju.",
+      copy: "Kopiraj markdown", download: "Preuzmi .md", copied: "Kopirano", words: k => k.toLocaleString("hr") + " " + window.plHr(k, "riječ", "riječi", "riječi"),
+      promptLabel: "prompt za početak",
+      prompt: "U privitku je cijeli profil jednog product managera, složen od njegovih riječi. Ovo je naš opis posla: [zalijepi ga]. Reci mi gdje se poklapa, a gdje ne, koliko bi nas koštali njegovi uvjeti i koje tri stvari vrijedi provjeriti u prvom razgovoru.",
+      copyPrompt: "Kopiraj prompt", inFile: "što je u fileu", file: "vatroslav-mileusnic-hr.md",
+      md: {
+        context: "Product manager, 13 godina u softveru. Živim blizu Zagreba i radim remote.",
+        about: today => { const [y, m, d] = today.split("-"); return "Ovaj file je cijela moja stranica za recruitere: uvjeti koje tražim i svaka priča u punoj duljini. Izvezeno " + (+d) + "." + (+m) + "." + y + ". Priče su složene od mojih riječi; naslovi iznad njih su pitanja kakva dobivam na razgovorima za posao."; },
+        oneLine: "U jednoj rečenici: ", follow: "Srodna pitanja: "
+      }
+    }
+  };
+  let lang = window.pageLang(), C = window.content(lang), S = C.stories, T = C.themes, TERMS = C.terms, U = UI[lang];
+  const order = ["origins", "data", "craft", "stakeholders", "launches", "ai"];
+
+  function htmlToMd(html) {
+    const d = document.createElement("div");
+    d.innerHTML = html;
+    const out = [];
+    d.childNodes.forEach(n => {
+      if (n.nodeType === 3) { const t = n.textContent.trim(); if (t) out.push(t); return; }
+      const tag = (n.tagName || "").toLowerCase();
+      if (tag === "h4") out.push("#### " + n.textContent.trim());
+      else if (tag === "ul" || tag === "ol") out.push([...n.querySelectorAll("li")].map(li => "- " + li.textContent.trim()).join("\n"));
+      else { const t = n.textContent.trim(); if (t) out.push(t); }
+    });
+    return out.join("\n\n");
+  }
+
+  function questionOf(id) { const s = S.find(x => x.id === id); return s ? s.question : id; }
+
+  function buildMarkdown() {
+    const today = new Date().toISOString().slice(0, 10);
+    const L = [];
+    L.push("# Vatroslav Mileusnić - product manager");
+    L.push(U.md.context);
+    L.push(U.md.about(today));
+
+    L.push("## " + TERMS.title);
+    L.push("*" + TERMS.question + "*");
+    L.push(U.md.oneLine + TERMS.sentence);
+    TERMS.items.forEach(i => {
+      L.push("### " + i.label);
+      L.push(i.value);
+      if (i.note) L.push(i.note);
+    });
+
+    order.forEach(t => {
+      const items = S.filter(s => s.theme === t);
+      if (!items.length) return;
+      L.push("## " + T[t]);
+      items.forEach(s => {
+        L.push("### " + s.question);
+        L.push("**" + s.title + "** - " + s.year);
+        L.push(U.md.oneLine + s.sentence);
+        L.push(htmlToMd(s.full));
+        const rel = (s.next || []).filter(id => S.some(x => x.id === id));
+        if (rel.length) L.push("*" + U.md.follow + rel.map(questionOf).join(" / ") + "*");
+      });
+    });
+
+    return L.join("\n\n") + "\n";
+  }
+
+  let md = "";
+  function renderAll() {
+    document.documentElement.lang = lang;
+    document.querySelectorAll("[data-ui]").forEach(el => { el.textContent = U[el.dataset.ui]; });
+    document.getElementById("leadOne").textContent = U.leadOne();
+    md = buildMarkdown();
+    document.getElementById("preview").textContent = md;
+    document.getElementById("size").textContent = U.words(md.trim().split(/\s+/).length);
+  }
+  renderAll();
+
+  function copy(text, btn, done) {
+    const restore = btn.textContent;
+    const ok = () => { btn.textContent = done; setTimeout(() => { btn.textContent = restore; }, 1800); };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(ok, () => fallback(text, ok));
+    else fallback(text, ok);
+  }
+  function fallback(text, ok) {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); ok(); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  document.getElementById("copy").addEventListener("click", e => copy(md, e.target, U.copied));
+  document.getElementById("copyPrompt").addEventListener("click", e => copy(document.getElementById("promptText").textContent.trim(), e.target, U.copied));
+  document.getElementById("download").addEventListener("click", () => {
+    const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = U.file;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 0);
+  });
+
+  if (new URLSearchParams(location.search).has("embedded")) document.body.classList.add("embedded");
+
+  const root = document.documentElement, tg = document.getElementById("themeToggle");
+  const sysDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
+  function applyTheme(t, tell) {
+    if (t) root.setAttribute("data-theme", t); else root.removeAttribute("data-theme");
+    tg.textContent = (t ? t === "dark" : sysDark()) ? U.light : U.dark;
+    if (tell !== false) parent.postMessage({ type: "theme", theme: t || null }, "*");
+  }
+  applyTheme(localStorage.getItem("ogledalo-theme"), false);
+  tg.addEventListener("click", () => {
+    const dark = root.getAttribute("data-theme") ? root.getAttribute("data-theme") === "dark" : sysDark();
+    const next = dark ? "light" : "dark";
+    localStorage.setItem("ogledalo-theme", next);
+    applyTheme(next);
+  });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => applyTheme(localStorage.getItem("ogledalo-theme"), false));
+  window.addEventListener("message", e => {
+    const m = e.data || {};
+    if (m.type === "theme") applyTheme(m.theme, false);
+    if (m.type === "lang" && UI[m.lang] && m.lang !== lang) {
+      lang = m.lang; C = window.content(lang); S = C.stories; T = C.themes; TERMS = C.terms; U = UI[lang];
+      renderAll(); applyTheme(root.getAttribute("data-theme"), false);
+    }
+  });
+</script>
+</body>
+</html>

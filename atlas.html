@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vatroslav Mileusnić - an atlas of decisions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #e8dcc0;
+    --sand-deep: #dccba6;
+    --ink: #5a4a2a;
+    --ink-light: #8a7a55;
+    --water: #cfd3cf;
+    --red: #b3261e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--sand); color: var(--ink); overflow: hidden; }
+  body { font-family: "Crimson Pro", Georgia, serif; }
+
+  .map { position: fixed; inset: 0; }
+  svg { width: 100%; height: 100%; display: block; touch-action: none; }
+  .zoomed svg { cursor: grab; }
+  .dragging svg, .dragging .province, .dragging .battle { cursor: grabbing; }
+  #world { transform-origin: 0 0; transition: transform .7s cubic-bezier(.25,.8,.25,1); }
+
+  .province { fill: url(#hatch); stroke: var(--ink); stroke-width: 1.6; cursor: pointer; transition: fill .3s; }
+  .province:hover { fill: url(#hatchHover); }
+  .province.active { fill: url(#hatchHover); stroke-width: 2.2; }
+  .province.uncharted, .province.uncharted:hover { fill: var(--water); cursor: default; }
+  .toponym { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 600; font-size: 30px; letter-spacing: .32em; fill: var(--ink); text-anchor: middle; pointer-events: none; text-transform: uppercase; }
+  .toponym.small { font-size: 22px; letter-spacing: .26em; }
+  .hachure { stroke: var(--ink-light); stroke-width: 1; fill: none; opacity: .55; }
+  .road-casing { fill: none; stroke: var(--ink); stroke-width: 6.5; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+  .road-fill { fill: none; stroke: #f1e7cc; stroke-width: 3.6; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+  .river-label { font-style: italic; font-size: 14px; fill: var(--ink-light); }
+  .sea { fill: var(--water); }
+  .sea-line { fill: none; stroke: var(--ink-light); stroke-width: .8; opacity: .6; }
+  .sea-label { font-style: italic; font-size: 18px; fill: var(--ink-light); letter-spacing: .1em; }
+
+  .battle { cursor: pointer; transition: opacity .3s; }
+  .battle .x { stroke: var(--red); stroke-width: 2.4; stroke-linecap: round; }
+  .battle .ring { fill: none; stroke: var(--red); stroke-width: 1; opacity: 0; transition: opacity .3s; }
+  .battle:hover .ring, .battle.active .ring { opacity: 1; }
+  .battle .date { font-style: italic; font-size: 13px; fill: var(--red); }
+  .battle .name { font-family: "Barlow Condensed", sans-serif; font-weight: 500; font-size: 13px; letter-spacing: .08em; fill: var(--ink); text-transform: uppercase; opacity: 0; transition: opacity .3s; }
+  .zoomed .battle .name { opacity: 1; }
+  .battle.future { opacity: .18; pointer-events: none; }
+
+  .cartouche { position: fixed; top: 28px; right: 32px; border: 1.5px solid var(--ink); padding: 14px 20px; background: rgba(232,220,192,.85); max-width: 340px; }
+  .cartouche h1 { font-family: "Barlow Condensed", sans-serif; font-weight: 600; font-size: 26px; letter-spacing: .22em; text-transform: uppercase; margin: 0 0 4px; }
+  .cartouche .sub { font-style: italic; font-size: 16px; line-height: 1.35; }
+  .cartouche .rule { border-top: 1px solid var(--ink); margin: 10px 0; }
+  .cartouche .hint { font-size: 14px; line-height: 1.4; }
+  .cartouche .terms-btn { margin-top: 12px; width: 100%; background: var(--ink); color: var(--sand); border: 0; padding: 9px 12px; font-family: "Barlow Condensed", sans-serif; letter-spacing: .2em; text-transform: uppercase; font-size: 12px; cursor: pointer; }
+  .drawer .term { display: grid; grid-template-columns: 120px 1fr; gap: 14px; border-top: 1px solid var(--ink-light); padding: 12px 0; }
+  .drawer .term .tl { font-family: "Barlow Condensed", sans-serif; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; font-size: 12px; color: var(--red); padding-top: 3px; }
+  .drawer .term .tv { font-size: 17px; line-height: 1.45; }
+  .drawer .term .tn { font-style: italic; color: var(--ink-light); font-size: 15px; margin-top: 4px; }
+  .legend { position: fixed; left: 32px; top: 140px; border: 1.5px solid var(--ink); padding: 12px 16px; background: rgba(232,220,192,.85); font-size: 14px; }
+  .legend .t { font-family: "Barlow Condensed", sans-serif; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; font-size: 13px; margin-bottom: 8px; }
+  .legend .row { display: flex; align-items: center; gap: 10px; margin: 4px 0; }
+  .legend svg { width: 22px; height: 16px; }
+  .rose { position: fixed; left: 32px; top: 28px; width: 92px; height: 92px; }
+
+  .time { position: fixed; left: 32px; right: 32px; bottom: 28px; display: flex; align-items: center; gap: 18px; font-size: 14px; }
+  .time .lbl { font-family: "Barlow Condensed", sans-serif; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; font-size: 13px; white-space: nowrap; }
+  .time input { flex: 1; -webkit-appearance: none; appearance: none; height: 2px; background: var(--ink); outline: 0; }
+  .time input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--red); border: 2px solid var(--sand); box-shadow: 0 0 0 1px var(--ink); cursor: pointer; }
+  .time .year { font-style: italic; font-size: 20px; min-width: 120px; }
+  .time .note { position: absolute; left: 0; top: 100%; margin-top: 6px; font-style: italic; font-size: 12px; opacity: .75; }
+  .zoom { position: fixed; right: 32px; bottom: 96px; display: flex; flex-direction: column; gap: 6px; }
+  .zoom button { width: 36px; height: 36px; border: 1.5px solid var(--ink); background: rgba(232,220,192,.9); font-family: "Crimson Pro", serif; font-size: 20px; cursor: pointer; color: var(--ink); }
+  .zoom .lvl { text-align: center; font-size: 12px; font-style: italic; }
+  .home { position: fixed; top: 28px; left: 50%; transform: translateX(-50%); display: none; background: var(--ink); color: var(--sand); border: 0; padding: 9px 16px; font-family: "Barlow Condensed", sans-serif; letter-spacing: .2em; text-transform: uppercase; font-size: 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(60,40,10,.25); }
+  .zoomed .home { display: block; }
+  .drawer.open ~ .home { left: calc((100vw - min(520px, 100vw)) / 2); }
+
+  .drawer { position: fixed; top: 0; right: 0; height: 100vh; width: min(520px, 100vw); background: var(--sand); border-left: 1.5px solid var(--ink); transform: translateX(105%); transition: transform .45s cubic-bezier(.2,.8,.2,1); z-index: 10; overflow-y: auto; padding: 44px 44px 120px; box-shadow: -30px 0 60px -30px rgba(60,40,10,.5); }
+  .drawer.open { transform: translateX(0); }
+  .drawer .close { position: absolute; top: 16px; right: 20px; background: none; border: 0; font-family: "Barlow Condensed", sans-serif; letter-spacing: .2em; text-transform: uppercase; font-size: 12px; color: var(--ink); cursor: pointer; }
+  .drawer .kicker { font-family: "Barlow Condensed", sans-serif; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; font-size: 13px; color: var(--red); }
+  .drawer h2 { font-family: "Barlow Condensed", sans-serif; font-weight: 600; font-size: 34px; line-height: 1.05; letter-spacing: .04em; text-transform: uppercase; margin: 6px 0 2px; }
+  .drawer .when { font-style: italic; font-size: 18px; color: var(--ink-light); margin-bottom: 20px; }
+  .drawer .body { font-size: 18px; line-height: 1.55; }
+  .drawer .body p { margin: 0 0 1em; }
+  .drawer .body h4 { font-family: "Barlow Condensed", sans-serif; font-weight: 600; letter-spacing: .22em; text-transform: uppercase; font-size: 13px; color: var(--red); margin: 22px 0 6px; }
+  .drawer .body ul { padding-left: 1.1em; margin: 0 0 1em; }
+  .drawer .body li { margin-bottom: .35em; }
+  .drawer .item { border-top: 1px solid var(--ink-light); padding: 14px 0; cursor: pointer; }
+  .drawer .item:hover .t { color: var(--red); }
+  .drawer .item .d { font-style: italic; color: var(--red); font-size: 15px; }
+  .drawer .item .t { font-family: "Barlow Condensed", sans-serif; font-weight: 600; font-size: 20px; letter-spacing: .06em; text-transform: uppercase; }
+  .drawer .item .s { font-size: 16px; line-height: 1.4; color: var(--ink); }
+  .drawer .more { display: inline-block; margin: 6px 0 22px; background: none; border: 1.5px solid var(--ink); padding: 8px 14px; font-family: "Barlow Condensed", sans-serif; letter-spacing: .18em; text-transform: uppercase; font-size: 12px; cursor: pointer; color: var(--ink); }
+  .drawer .more.on { background: var(--ink); color: var(--sand); }
+  .drawer .nextbar { margin-top: 36px; border-top: 1.5px solid var(--ink); padding-top: 14px; }
+  .drawer .nextbar .lbl { font-family: "Barlow Condensed", sans-serif; letter-spacing: .22em; text-transform: uppercase; font-size: 12px; margin-bottom: 8px; }
+  .drawer .nextbar button { display: block; width: 100%; text-align: left; background: none; border: 0; font: inherit; font-size: 17px; padding: 6px 0; cursor: pointer; color: var(--ink); }
+  .drawer .nextbar button i { color: var(--red); font-style: italic; }
+  .drawer .nextbar button:hover { color: var(--red); }
+
+  @media (max-width: 800px) {
+    .cartouche { max-width: 220px; top: 16px; right: 16px; padding: 10px 12px; }
+    .cartouche h1 { font-size: 18px; }
+    .cartouche .hint { display: none; }
+    .legend { display: none; }
+    .rose { width: 60px; height: 60px; left: 16px; top: 16px; }
+    .time { left: 16px; right: 16px; }
+    .home { top: auto; bottom: 72px; }
+    .drawer { padding: 40px 22px 120px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="map">
+<svg viewBox="0 0 1200 760" xmlns="http://www.w3.org/2000/svg" id="svg">
+  <defs>
+    <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="7" height="7" fill="#e3d5b3"/>
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#b9a87c" stroke-width=".7"/>
+    </pattern>
+    <pattern id="hatchHover" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="7" height="7" fill="#dfcda3"/>
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#8f7d4f" stroke-width=".9"/>
+    </pattern>
+  </defs>
+  <g id="world">
+        <path class="sea" d="M980,0 L1200,0 L1200,760 L640,760 L640,700 Q700,660 760,690 Q820,640 900,640 Q960,560 1010,470 Q1060,380 1010,300 Q960,220 1000,140 Q1020,60 980,0 z"/>
+    <path class="sea-line" d="M1000,20 Q1040,90 1020,160 Q980,240 1040,320 Q1080,400 1030,480 Q980,570 920,660 Q860,700 780,720"/>
+    <path class="sea-line" d="M1030,10 Q1070,100 1050,180 Q1010,260 1070,340 Q1110,420 1060,500 Q1010,590 950,690"/>
+    <text class="sea-label" id="sea" x="1090" y="600" transform="rotate(-70 1090 600)"></text>
+
+        <path class="province" data-theme="origins" d="M40,520 Q70,470 130,480 Q200,460 240,500 Q280,560 250,620 Q220,690 150,700 Q80,700 50,650 Q20,590 40,520 z"/>
+    <text class="toponym small" data-top="origins" x="140" y="605"></text>
+
+    <path class="province" data-theme="data" d="M130,260 Q190,220 260,240 Q300,200 330,190 Q340,260 360,330 Q370,400 320,440 Q270,480 240,500 Q200,460 130,480 Q90,430 100,350 Q100,290 130,260 z"/>
+    <text class="toponym" data-top="data" x="190" y="290"></text>
+
+    <path class="province" data-theme="craft" d="M360,120 Q430,80 520,100 Q600,120 640,190 Q660,260 610,310 Q550,340 480,330 Q400,320 360,330 Q340,260 330,190 Q330,140 360,120 z"/>
+    <text class="toponym small" data-top="craft" x="487" y="287"></text>
+
+    <path class="province" data-theme="ai" d="M640,190 Q720,130 800,150 Q880,170 940,230 Q980,290 960,360 Q930,420 860,430 Q790,440 730,400 Q660,360 610,310 Q660,260 640,190 z"/>
+    <text class="toponym" data-top="ai" x="800" y="300"></text>
+
+    <path class="province" data-theme="stakeholders" d="M320,440 Q370,400 360,330 Q400,320 480,330 Q550,340 610,310 Q660,360 730,400 Q740,470 690,530 Q620,580 540,570 Q450,560 380,520 Q340,490 320,440 z"/>
+    <text class="toponym small" data-top="stakeholders" x="610" y="420"></text>
+
+    <path class="province" data-theme="launches" d="M540,570 Q620,580 690,530 Q740,470 730,400 Q790,440 860,430 Q930,470 900,560 Q870,640 790,670 Q700,700 620,690 Q560,660 540,570 z"/>
+    <text class="toponym" data-top="launches" x="690" y="645"></text>
+
+        <g class="hachure">
+      <path d="M700,220 q10,-12 20,0 M730,210 q10,-12 20,0 M760,225 q10,-12 20,0 M790,205 q10,-12 20,0 M820,230 q10,-12 20,0 M850,215 q10,-12 20,0 M880,240 q10,-12 20,0"/>
+      <path d="M590,170 q10,-12 20,0"/>
+    </g>
+
+        <path class="road-casing" d="M190,682 C194,672 211,642 215,622 C219,602 216,582 212,560 C208,538 198,512 188,492 C178,472 147,457 150,438 C153,419 185,396 205,378 C225,360 245,345 268,330 C291,315 321,301 345,290 C369,279 389,278 410,262 C431,246 448,205 470,196 C492,187 526,195 545,206 C564,217 583,241 585,262 C587,283 574,308 555,330 C536,352 487,370 470,392 C453,414 440,441 452,462 C464,483 509,514 540,520 C571,526 611,498 640,495 C669,492 690,494 712,505 C734,516 749,551 770,560 C791,569 823,569 838,560 C853,551 862,525 858,505 C854,485 815,460 812,438 C809,416 824,392 838,372 C852,352 878,336 895,318 C912,300 931,271 938,262"/>
+    <path class="road-fill" d="M190,682 C194,672 211,642 215,622 C219,602 216,582 212,560 C208,538 198,512 188,492 C178,472 147,457 150,438 C153,419 185,396 205,378 C225,360 245,345 268,330 C291,315 321,301 345,290 C369,279 389,278 410,262 C431,246 448,205 470,196 C492,187 526,195 545,206 C564,217 583,241 585,262 C587,283 574,308 555,330 C536,352 487,370 470,392 C453,414 440,441 452,462 C464,483 509,514 540,520 C571,526 611,498 640,495 C669,492 690,494 712,505 C734,516 749,551 770,560 C791,569 823,569 838,560 C853,551 862,525 858,505 C854,485 815,460 812,438 C809,416 824,392 838,372 C852,352 878,336 895,318 C912,300 931,271 938,262"/>
+    <text class="river-label" x="205" y="708">2013</text>
+    <text class="river-label" x="948" y="252">2026</text>
+
+        <g id="battles"></g>
+  </g>
+</svg>
+</div>
+
+<svg class="rose" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="40" fill="none" stroke="#5a4a2a" stroke-width="1"/>
+  <circle cx="50" cy="50" r="30" fill="none" stroke="#5a4a2a" stroke-width=".6"/>
+  <path d="M50,8 L56,50 L50,92 L44,50 z" fill="#5a4a2a"/>
+  <path d="M8,50 L50,44 L92,50 L50,56 z" fill="#5a4a2a" opacity=".55"/>
+  <path d="M50,8 L56,50 L50,50 z" fill="#b3261e"/>
+  <text x="50" y="6" text-anchor="middle" font-family="Barlow Condensed" font-size="11" fill="#5a4a2a">N</text>
+</svg>
+
+<div class="cartouche">
+  <h1 id="cTitle"></h1>
+  <div class="sub" id="cSub"></div>
+  <div class="rule"></div>
+  <div class="hint" id="cHint"></div>
+  <button class="terms-btn" id="termsBtn"></button>
+</div>
+
+<div class="legend">
+  <div class="t" id="lgT"></div>
+  <div class="row"><svg viewBox="0 0 22 16"><line x1="5" y1="3" x2="17" y2="13" stroke="#b3261e" stroke-width="2"/><line x1="17" y1="3" x2="5" y2="13" stroke="#b3261e" stroke-width="2"/></svg> <span id="lg1"></span></div>
+  <div class="row"><svg viewBox="0 0 22 16"><line x1="3" y1="12" x2="19" y2="4" stroke="#5a4a2a" stroke-width="4.5" stroke-linecap="round"/><line x1="3" y1="12" x2="19" y2="4" stroke="#f1e7cc" stroke-width="2.2" stroke-linecap="round"/></svg> <span id="lg2"></span></div>
+  <div class="row"><svg viewBox="0 0 22 16"><rect x="2" y="2" width="18" height="12" fill="#cfd3cf"/></svg> <span id="lg3"></span></div>
+</div>
+
+<div class="zoom">
+  <button id="zin">+</button>
+  <button id="zout">&minus;</button>
+  <div class="lvl" id="lvl"></div>
+</div>
+
+<div class="time">
+  <div class="lbl" id="timeLbl"></div>
+  <input type="range" id="year" min="2013" max="2026" value="2026" step="1">
+  <div class="year" id="yearLbl"></div>
+  <div class="note" id="cNote"></div>
+</div>
+
+<aside class="drawer" id="drawer"></aside>
+<button class="home" id="home"></button>
+
+<script src="stories.js"></script>
+<script>
+  const n = window.STORIES.length;
+  const UI = {
+    en: {
+      sea: "Sea of the Not Yet Measured",
+      top: { origins: "Origins", craft: "Craft|and team", stakeholders: "Stakeholders", data: "Data", ai: "AI", launches: "Launches" },
+      title: "Atlas of decisions",
+      sub: () => "Vatroslav Mileusnić, product manager. Thirteen years of territory, " + window.storyCount("en") + " decisions marked.",
+      hint: "Click a province to zoom in. Click a red mark to read the story of that decision. The road runs through the years.",
+      note: "All of this was put together in 2026 from my memory, so I don't always know exactly when something happened.",
+      legend: ["Legend", "decision", "road through the years", "not yet charted"],
+      levels: ["from the air", "the province", "up close"],
+      front: "Decisions up to", today: y => y + ", today", year: y => String(y),
+      months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], monthYear: (m, y) => m + " " + y,
+      backAir: "back to the air", home: "← whole map", province: "province", recorded: k => k + (k === 1 ? " decision" : " decisions") + " recorded",
+      backProvince: "back to the province", dispatch: "decision", shorter: "shorter", full: "read the whole story", related: "related decisions",
+      close: "close", campaign: "before anything else", termsSub: "so neither of us wastes a call", withReasons: "with the reasons", withoutReasons: "without the reasons"
+    },
+    hr: {
+      sea: "More još neizmjerenog",
+      top: { origins: "Počeci", craft: "Zanat|i tim", stakeholders: "Stakeholderi", data: "Podaci", ai: "AI", launches: "Lansiranja" },
+      title: "Atlas odluka",
+      sub: () => { const w = window.storyCount("hr"); return "Vatroslav Mileusnić, product manager. Trinaest godina teritorija, " + window.plHr(n, "jedna ucrtana odluka", w + " ucrtane odluke", w + " ucrtanih odluka") + "."; },
+      hint: "Klikni na pokrajinu da je približiš. Klikni na crvenu oznaku da pročitaš priču o toj odluci. Put vodi kroz godine.",
+      note: "Sve je ovo složeno 2026. po mom sjećanju, pa ne znam uvijek točno kad je što bilo.",
+      legend: ["Legenda", "odluka", "put kroz godine", "još neucrtano"],
+      levels: ["iz zraka", "pokrajina", "izbliza"],
+      front: "Odluke do", today: y => y + "., danas", year: y => y + ".",
+      months: ["siječanj", "veljača", "ožujak", "travanj", "svibanj", "lipanj", "srpanj", "kolovoz", "rujan", "listopad", "studeni", "prosinac"], monthYear: (m, y) => m + " " + y + ".",
+      backAir: "natrag u zrak", home: "← cijela karta", province: "pokrajina", recorded: k => window.plHr(k, k + " zabilježena odluka", k + " zabilježene odluke", k + " zabilježenih odluka"),
+      backProvince: "natrag na pokrajinu", dispatch: "odluka", shorter: "kraće", full: "pročitaj cijelu priču", related: "srodne odluke",
+      close: "zatvori", campaign: "prije svega", termsSub: "da nijedan od nas ne potroši vrijeme na uzaludan razgovor", withReasons: "s razlozima", withoutReasons: "bez razloga"
+    }
+  };
+  let lang = window.pageLang(), C = window.content(lang), S = C.stories, T = C.themes, U = UI[lang];
+  const POS = {
+    origin: [95, 650], product: [100, 540],
+    bonus: [225, 450], rounding: [150, 330], analytics: [300, 410], eutest: [335, 372], percentiles: [295, 245],
+    room: [380, 170], spec: [445, 128], engineering: [565, 135], designer: [610, 215],
+    models: [370, 490],
+    pricing: [660, 580], balkan: [830, 628], b2b: [885, 580], report: [885, 520], jump: [862, 462],
+    deterministic: [720, 360], verify: [690, 280], review: [770, 178]
+  };
+  const CENTER = { origins: [150, 590], data: [235, 360], craft: [495, 215], ai: [800, 290], stakeholders: [530, 455], launches: [740, 580] };
+  const world = document.getElementById("world");
+  const svg = document.getElementById("svg");
+  let level = 1, activeTheme = null, activeBattle = null, showFull = false, drawerMode = null;
+
+  function fmtDate(d) { const [y, m] = d.split("-"); return m ? U.monthYear(U.months[+m - 1], y) : U.year(y); }
+
+  function applyStatic() {
+    document.documentElement.lang = lang;
+    document.getElementById("sea").textContent = U.sea;
+    document.querySelectorAll("[data-top]").forEach(t => {
+      t.textContent = "";
+      U.top[t.dataset.top].split("|").forEach((ln, i) => {
+        const sp = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+        sp.setAttribute("x", t.getAttribute("x"));
+        if (i) sp.setAttribute("dy", "1.1em");
+        sp.textContent = ln;
+        t.appendChild(sp);
+      });
+    });
+    document.getElementById("cTitle").textContent = U.title;
+    document.getElementById("cSub").textContent = U.sub();
+    document.getElementById("cHint").textContent = U.hint;
+    document.getElementById("cNote").textContent = U.note;
+    document.getElementById("termsBtn").textContent = C.terms.title;
+    ["lgT", "lg1", "lg2", "lg3"].forEach((id, i) => { document.getElementById(id).textContent = U.legend[i]; });
+    document.getElementById("timeLbl").textContent = U.front;
+    const y = +document.getElementById("year").value;
+    document.getElementById("yearLbl").textContent = y === 2026 ? U.today(y) : U.year(y);
+    document.getElementById("lvl").textContent = U.levels[level - 1];
+    document.getElementById("home").textContent = U.home;
+  }
+
+  function drawBattles() {
+    const g = document.getElementById("battles");
+    g.innerHTML = "";
+    S.forEach(s => {
+      const [x, y] = POS[s.id];
+      const el = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      el.setAttribute("class", "battle"); el.dataset.id = s.id; el.dataset.year = s.date.slice(0, 4);
+      el.innerHTML =
+        '<circle class="ring" cx="' + x + '" cy="' + y + '" r="14"/>' +
+        '<line class="x" x1="' + (x - 6) + '" y1="' + (y - 6) + '" x2="' + (x + 6) + '" y2="' + (y + 6) + '"/>' +
+        '<line class="x" x1="' + (x + 6) + '" y1="' + (y - 6) + '" x2="' + (x - 6) + '" y2="' + (y + 6) + '"/>' +
+        '<text class="date" x="' + (x + 12) + '" y="' + (y - 8) + '">' + fmtDate(s.date) + '</text>' +
+        '<text class="name" x="' + (x + 12) + '" y="' + (y + 8) + '">' + s.title + '</text>';
+      el.addEventListener("click", e => { e.stopPropagation(); openBattle(s.id); });
+      g.appendChild(el);
+    });
+    const y = +document.getElementById("year").value;
+    document.querySelectorAll(".battle").forEach(b => b.classList.toggle("future", +b.dataset.year > y));
+    if (activeBattle) document.querySelectorAll(".battle").forEach(b => b.classList.toggle("active", b.dataset.id === activeBattle));
+  }
+
+  let view = { s: 1, tx: 0, ty: 0 };
+  function setView(s, tx, ty, animate) {
+    view = { s: s, tx: tx, ty: ty };
+    world.style.transition = animate === false ? "none" : "";
+    world.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + s + ")";
+  }
+
+  function zoomTo(scale, px, py) {
+    const cx = scale === 1 ? 600 : 380, cy = 380;
+    setView(scale, cx - scale * px, cy - scale * py);
+    document.body.classList.toggle("zoomed", scale > 1);
+    document.getElementById("lvl").textContent = U.levels[scale === 1 ? 0 : scale < 3 ? 1 : 2];
+  }
+
+  function openProvince(theme) {
+    level = 2; activeTheme = theme; activeBattle = null; showFull = false; drawerMode = "province";
+    document.querySelectorAll(".province").forEach(p => p.classList.toggle("active", p.dataset.theme === theme));
+    document.querySelectorAll(".battle").forEach(b => b.classList.remove("active"));
+    zoomTo(2.1, CENTER[theme][0], CENTER[theme][1]);
+    const items = S.filter(s => s.theme === theme);
+    const d = document.getElementById("drawer");
+    d.innerHTML = '<button class="close" id="dclose">' + U.backAir + '</button>' +
+      '<div class="kicker">' + U.province + '</div><h2>' + T[theme] + '</h2>' +
+      '<div class="when">' + U.recorded(items.length) + '</div>' +
+      items.map(s => '<div class="item" data-id="' + s.id + '"><div class="d">' + fmtDate(s.date) + '</div><div class="t">' + s.title + '</div><div class="s">' + s.sentence + '</div></div>').join("");
+    d.classList.add("open");
+    d.querySelector("#dclose").addEventListener("click", reset);
+    d.querySelectorAll(".item").forEach(i => i.addEventListener("click", () => openBattle(i.dataset.id)));
+  }
+
+  function openBattle(id) {
+    const s = S.find(x => x.id === id);
+    level = 3; activeTheme = s.theme; activeBattle = id; drawerMode = "battle";
+    document.querySelectorAll(".province").forEach(p => p.classList.toggle("active", p.dataset.theme === s.theme));
+    document.querySelectorAll(".battle").forEach(b => b.classList.toggle("active", b.dataset.id === id));
+    zoomTo(3.2, POS[id][0] + 40, POS[id][1]);
+    const d = document.getElementById("drawer");
+    const rel = s.next.map(n => S.find(y => y.id === n)).filter(Boolean);
+    d.innerHTML = '<button class="close" id="dclose">' + U.backProvince + '</button>' +
+      '<div class="kicker">' + U.dispatch + ' &nbsp;·&nbsp; ' + T[s.theme] + '</div><h2>' + s.title + '</h2>' +
+      '<div class="when">' + fmtDate(s.date) + (fmtDate(s.date) === U.year(s.year) ? '' : ' &nbsp;·&nbsp; ' + s.year) + '</div>' +
+      '<div class="body">' + (showFull || !s.para ? s.full : '<p>' + s.para + '</p>') + '</div>' +
+      (s.para ? '<button class="more ' + (showFull ? "on" : "") + '" id="more">' + (showFull ? U.shorter : U.full) + '</button>' : '') +
+      (rel.length ? '<div class="nextbar"><div class="lbl">' + U.related + '</div>' +
+      rel.map(x => '<button data-id="' + x.id + '"><i>' + fmtDate(x.date) + ' · ' + T[x.theme] + '</i> &nbsp; ' + x.title + '</button>').join("") + '</div>' : '');
+    d.classList.add("open"); d.scrollTop = 0;
+    parent.postMessage({ type: "story", id: id }, "*");
+    d.querySelector("#dclose").addEventListener("click", () => openProvince(s.theme));
+    if (s.para) d.querySelector("#more").addEventListener("click", () => { showFull = !showFull; openBattle(id); });
+    d.querySelectorAll(".nextbar button").forEach(b => b.addEventListener("click", () => { showFull = false; openBattle(b.dataset.id); }));
+  }
+
+  let termsFull = false;
+  function openTerms() {
+    const T2 = C.terms, d = document.getElementById("drawer");
+    drawerMode = "terms";
+    d.innerHTML = '<button class="close" id="dclose">' + U.close + '</button>' +
+      '<div class="kicker">' + U.campaign + '</div><h2>' + T2.title + '</h2>' +
+      '<div class="when">' + U.termsSub + '</div>' +
+      '<div class="body"><p>' + T2.sentence + '</p></div>' +
+      T2.items.map(i => '<div class="term"><div class="tl">' + i.label + '</div><div class="tv">' + i.value + (termsFull && i.note ? '<div class="tn">' + i.note + '</div>' : '') + '</div></div>').join("") +
+      '<button class="more ' + (termsFull ? "on" : "") + '" id="more" style="margin-top:18px">' + (termsFull ? U.withoutReasons : U.withReasons) + '</button>';
+    d.classList.add("open"); d.scrollTop = 0;
+    d.querySelector("#dclose").addEventListener("click", () => { d.classList.remove("open"); drawerMode = null; });
+    d.querySelector("#more").addEventListener("click", () => { termsFull = !termsFull; openTerms(); });
+  }
+  document.getElementById("termsBtn").addEventListener("click", openTerms);
+
+  window.addEventListener("message", e => {
+    const m = e.data || {};
+    if (m.type === "open" && S.some(s => s.id === m.id)) { showFull = false; openBattle(m.id); }
+    if (m.type === "lang" && UI[m.lang] && m.lang !== lang) setLang(m.lang);
+  });
+
+  function setLang(l) {
+    lang = l; C = window.content(l); S = C.stories; T = C.themes; U = UI[l];
+    applyStatic(); drawBattles();
+    const keepFull = showFull;
+    if (drawerMode === "battle" && activeBattle) { showFull = keepFull; openBattle(activeBattle); }
+    else if (drawerMode === "province" && activeTheme) openProvince(activeTheme);
+    else if (drawerMode === "terms") openTerms();
+  }
+
+  function reset() {
+    level = 1; activeTheme = null; activeBattle = null; showFull = false; drawerMode = null;
+    document.querySelectorAll(".province").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".battle").forEach(b => b.classList.remove("active"));
+    zoomTo(1, 600, 380);
+    document.getElementById("drawer").classList.remove("open");
+  }
+
+  function closeDrawer() {
+    document.getElementById("drawer").classList.remove("open");
+    drawerMode = null;
+  }
+
+  let drag = null, dragged = false;
+  svg.addEventListener("pointerdown", e => {
+    dragged = false;
+    if (e.button !== 0 || view.s === 1) return;
+    drag = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty, k: svg.getScreenCTM().a, moved: false };
+  });
+  window.addEventListener("pointermove", e => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+    drag.moved = true; document.body.classList.add("dragging");
+    const s = view.s, clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+    setView(s, clamp(drag.tx + dx / drag.k, 1200 - 1200 * s - 400, 400), clamp(drag.ty + dy / drag.k, 760 - 760 * s - 400, 400), false);
+  });
+  window.addEventListener("pointerup", () => { if (drag && drag.moved) dragged = true; drag = null; document.body.classList.remove("dragging"); });
+  window.addEventListener("pointercancel", () => { drag = null; document.body.classList.remove("dragging"); });
+
+  svg.addEventListener("click", e => {
+    if (dragged) { dragged = false; e.stopPropagation(); return; }
+    if (drawerMode && !e.target.closest(".battle")) { e.stopPropagation(); closeDrawer(); return; }
+    if (level > 1 && !e.target.closest(".province, .battle")) { e.stopPropagation(); reset(); }
+  }, true);
+  document.getElementById("home").addEventListener("click", reset);
+
+  document.querySelectorAll(".province").forEach(p => {
+    if (!S.some(s => s.theme === p.dataset.theme)) { p.classList.add("uncharted"); return; }
+    p.addEventListener("click", () => openProvince(p.dataset.theme));
+  });
+  document.getElementById("zin").addEventListener("click", () => { if (level === 1) openProvince(activeTheme || "origins"); else if (level === 2) openBattle(S.find(s => s.theme === activeTheme).id); });
+  document.getElementById("zout").addEventListener("click", () => { if (level === 3) openProvince(activeTheme); else reset(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { level === 3 ? openProvince(activeTheme) : reset(); } });
+
+  const yr = document.getElementById("year"), yl = document.getElementById("yearLbl");
+  yr.addEventListener("input", () => {
+    const y = +yr.value;
+    yl.textContent = y === 2026 ? U.today(y) : U.year(y);
+    document.querySelectorAll(".battle").forEach(b => b.classList.toggle("future", +b.dataset.year > y));
+  });
+
+  applyStatic();
+  drawBattles();
+</script>
+</body>
+</html>

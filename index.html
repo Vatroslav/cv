@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vatroslav Mileusnić - product manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  :root { --bar: #ecebe3; --bar-ink: #1f2a22; --bar-quiet: #6f7670; --bar-rule: #d3d4c9; --bar-accent: #3d7a4a; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bar: #1e2226; --bar-ink: #ece7dc; --bar-quiet: #8f8a80; --bar-rule: #33393f; --bar-accent: #f0a04b; }
+  }
+  :root[data-theme="dark"] { --bar: #1e2226; --bar-ink: #ece7dc; --bar-quiet: #8f8a80; --bar-rule: #33393f; --bar-accent: #f0a04b; }
+  :root[data-view="map"] { --bar: #e8dcc0; --bar-ink: #5a4a2a; --bar-quiet: #8a7a55; --bar-rule: #c9bb98; --bar-accent: #b3261e; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bar); }
+  body { display: flex; flex-direction: column; font-family: Inter, system-ui, sans-serif; }
+
+  .bar { flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 40px; background: var(--bar); color: var(--bar-ink); border-bottom: 1px solid var(--bar-rule); transition: background .25s, color .25s; }
+  .bar .name { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--bar-quiet); white-space: nowrap; }
+  .bar .name b { color: var(--bar-ink); font-weight: 500; }
+  .switch { display: flex; border: 1px solid var(--bar-rule); }
+  .switch button { background: none; border: 0; padding: 8px 18px; font: inherit; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--bar-quiet); cursor: pointer; white-space: nowrap; }
+  .switch button + button { border-left: 1px solid var(--bar-rule); }
+  .switch button.on { color: var(--bar-ink); box-shadow: inset 0 -2px 0 var(--bar-accent); }
+  .switch button:hover { color: var(--bar-ink); }
+  .bar .hint { font-size: 12px; color: var(--bar-quiet); white-space: nowrap; }
+  .bar .right { display: flex; align-items: center; gap: 18px; }
+  .lang { display: flex; border: 1px solid var(--bar-rule); }
+  .lang button { background: none; border: 0; padding: 6px 10px; font: inherit; font-size: 11px; letter-spacing: .12em; color: var(--bar-quiet); cursor: pointer; }
+  .lang button + button { border-left: 1px solid var(--bar-rule); }
+  .lang button.on { color: var(--bar-ink); box-shadow: inset 0 -2px 0 var(--bar-accent); }
+  .lang button:hover { color: var(--bar-ink); }
+
+  .foot { flex: 0 0 auto; padding: 9px 40px; background: var(--bar); color: var(--bar-quiet); border-top: 1px solid var(--bar-rule); font-size: 11px; letter-spacing: .06em; text-align: right; transition: background .25s, color .25s; }
+
+  .views { flex: 1; position: relative; }
+  .views iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .views iframe.on { opacity: 1; pointer-events: auto; }
+
+  @media (max-width: 1260px) { .bar .hint { display: none; } }
+  @media (max-width: 1060px) { .bar .name span { display: none; } }
+
+  @media (max-width: 780px) {
+    .bar { padding: 10px 16px; flex-wrap: wrap; gap: 10px; }
+    .bar .name span, .bar .hint { display: none; }
+    .bar .name { flex: 1; order: 1; }
+    .bar .right { order: 2; }
+    .switch { order: 3; width: 100%; }
+    .switch button { flex: 1; padding: 9px 4px; letter-spacing: .08em; }
+    .foot { padding: 8px 16px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="name"><b>Vatroslav Mileusnić</b><span id="sub"></span></div>
+    <div class="switch" role="tablist">
+      <button id="btnQ" data-view="questions" role="tab"></button>
+      <button id="btnM" data-view="map" role="tab"></button>
+      <button id="btnA" data-view="ai" role="tab"></button>
+    </div>
+    <div class="right">
+      <div class="hint" id="hint"></div>
+      <div class="lang" role="group" aria-label="Jezik / Language">
+        <button data-lang="hr" lang="hr" title="Hrvatski">HR</button>
+        <button data-lang="en" lang="en" title="English">EN</button>
+      </div>
+    </div>
+  </div>
+    <div class="views">
+    <iframe id="vQ" data-src="ogledalo-dual.html"></iframe>
+    <iframe id="vM" data-src="atlas.html"></iframe>
+    <iframe id="vA" data-src="izvoz.html"></iframe>
+  </div>
+  <div class="foot" id="foot"></div>
+
+<script src="stories.js"></script>
+<script>
+  const root = document.documentElement;
+  const frames = { questions: document.getElementById("vQ"), map: document.getElementById("vM"), ai: document.getElementById("vA") };
+  const buttons = { questions: document.getElementById("btnQ"), map: document.getElementById("btnM"), ai: document.getElementById("btnA") };
+  let view = null, story = null, theme = localStorage.getItem("ogledalo-theme");
+
+  const n = window.STORIES.length;
+  const UI = {
+    en: {
+      sub: "product manager, 13 years around software",
+      views: { questions: "By question", map: "By map", ai: "For AI" },
+      hint: () => "the same " + window.storyCount("en") + " stories, three ways in",
+      foot: "This page was built with Claude Code."
+    },
+    hr: {
+      sub: "product manager, 13 godina u softveru",
+      views: { questions: "Po pitanjima", map: "Po karti", ai: "Za AI" },
+      hint: () => { const w = window.storyCount("hr"); return window.plHr(n, "ista jedna priča", "iste " + w + " priče", "istih " + w + " priča") + ", tri ulaza"; },
+      foot: "Stranica je napravljena u Claude Codeu."
+    }
+  };
+  let lang = window.pageLang();
+
+  function applyLang(l, tell) {
+    lang = l;
+    const u = UI[l];
+    root.lang = l;
+    document.getElementById("sub").innerHTML = " &nbsp;·&nbsp; " + u.sub;
+    Object.keys(buttons).forEach(k => { buttons[k].textContent = u.views[k]; frames[k].title = u.views[k]; });
+    document.getElementById("hint").textContent = u.hint();
+    document.getElementById("foot").textContent = u.foot;
+    document.querySelectorAll(".lang button").forEach(b => b.classList.toggle("on", b.dataset.lang === l));
+    if (tell !== false) Object.values(frames).forEach(f => f.contentWindow.postMessage({ type: "lang", lang: l }, "*"));
+  }
+
+  document.querySelectorAll(".lang button").forEach(b => b.addEventListener("click", () => {
+    if (b.dataset.lang === lang) return;
+    try { localStorage.setItem("stranica-lang", b.dataset.lang); } catch (e) {}
+    try { const url = new URL(location.href); url.searchParams.set("lang", b.dataset.lang); history.replaceState(null, "", url); } catch (e) {}
+    applyLang(b.dataset.lang);
+  }));
+
+  applyLang(lang, false);
+  Object.values(frames).forEach(f => { f.src = f.dataset.src + "?embedded=1&lang=" + lang; });
+
+  function show(v, push) {
+    view = v;
+    Object.keys(frames).forEach(k => { frames[k].classList.toggle("on", k === v); buttons[k].classList.toggle("on", k === v); });
+    root.setAttribute("data-view", v);
+    if (push !== false) history.replaceState(null, "", "#" + v);
+    localStorage.setItem("stranica-view", v);
+    if (story) frames[v].contentWindow.postMessage({ type: "open", id: story }, "*");
+    frames[v].contentWindow.postMessage({ type: "theme", theme: theme }, "*");
+  }
+
+  Object.values(buttons).forEach(b => b.addEventListener("click", () => show(b.dataset.view)));
+  window.addEventListener("hashchange", () => { const h = location.hash.slice(1); if (frames[h]) show(h, false); });
+
+  window.addEventListener("message", e => {
+    const m = e.data || {};
+    if (m.type === "story") story = m.id;
+    if (m.type === "theme") {
+      theme = m.theme || null;
+      if (theme) root.setAttribute("data-theme", theme); else root.removeAttribute("data-theme");
+      Object.entries(frames).forEach(([k, f]) => { if (f.contentWindow !== e.source) f.contentWindow.postMessage({ type: "theme", theme: theme }, "*"); });
+    }
+  });
+
+  const start = frames[location.hash.slice(1)] ? location.hash.slice(1) : (localStorage.getItem("stranica-view") || "questions");
+  show(start, false);
+</script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vatroslav Mileusnić - questions you'd ask</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ecebe3;
+    --ink: #1f2a22;
+    --quiet: #6f7670;
+    --rule: #d3d4c9;
+    --accent: #3d7a4a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --paper: #1e2226; --ink: #ece7dc; --quiet: #8f8a80; --rule: #33393f; --accent: #f0a04b; }
+  }
+  :root[data-theme="dark"] { --paper: #1e2226; --ink: #ece7dc; --quiet: #8f8a80; --rule: #33393f; --accent: #f0a04b; }
+  .story { transition: color .2s; }
+  html { transition: background .25s; }
+  .embedded header .name { visibility: hidden; }
+  .embedded .frame { padding-top: 20px; }
+  .embedded header { margin-bottom: 36px; }
+  .theme-toggle { border: 1px solid var(--rule); background: none; color: var(--quiet); font-family: Inter, system-ui, sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; padding: 5px 10px; cursor: pointer; margin-left: 18px; }
+  .theme-toggle:hover { color: var(--ink); border-color: var(--ink); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); }
+  body { font-family: "Source Serif 4", Georgia, serif; font-size: 18px; line-height: 1.55; }
+  :root[data-theme="dark"] body { line-height: 1.62; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) body { line-height: 1.62; } }
+  a { color: inherit; }
+
+  .frame { max-width: 1240px; margin: 0 auto; padding: 48px 40px 96px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--rule); padding-bottom: 14px; margin-bottom: 56px; }
+  header .name { font-family: Inter, system-ui, sans-serif; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--quiet); }
+  header .name b { color: var(--ink); font-weight: 500; }
+  header .hint { font-family: Inter, system-ui, sans-serif; font-size: 13px; color: var(--quiet); }
+
+  .grid { display: grid; grid-template-columns: 4fr 6fr; gap: 64px; align-items: start; }
+
+  .questions { position: sticky; top: 40px; max-height: calc(100vh - 40px); overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--rule) transparent; }
+  .qhead { cursor: pointer; font-family: Inter, system-ui, sans-serif; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); padding-bottom: 12px; border-bottom: 1px solid var(--rule); margin-bottom: 24px; }
+  .qhead:hover { color: var(--accent); border-color: var(--accent); }
+  .theme { font-family: Inter, system-ui, sans-serif; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--quiet); margin: 28px 0 8px; }
+  .theme:first-child, .qhead + .theme { margin-top: 0; }
+  .q { font-family: Inter, system-ui, sans-serif; font-weight: 400; font-size: 15.5px; line-height: 1.45; color: var(--quiet); padding: 9px 0 9px 22px; position: relative; cursor: pointer; border: 0; background: none; text-align: left; width: 100%; }
+  .q:hover { color: var(--ink); }
+  .q.active { color: var(--ink); }
+  .q.active::before { content: ""; position: absolute; left: 0; top: 17px; width: 10px; height: 1.5px; background: var(--accent); }
+  .q .dots { display: none; position: absolute; right: 0; top: 13px; gap: 5px; }
+  .q.active .dots { display: flex; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; border: 1px solid var(--accent); background: transparent; cursor: pointer; }
+  .dot.on { background: var(--accent); }
+
+  .story { min-height: 60vh; }
+  .story .asked { font-family: Inter, system-ui, sans-serif; font-size: 13px; color: var(--quiet); margin: 0 0 6px; }
+  .story h1 { font-weight: 600; font-size: 34px; line-height: 1.15; margin: 0 0 6px; letter-spacing: -.01em; }
+  .story .year { font-style: italic; color: var(--quiet); margin-bottom: 28px; }
+  .story p { margin: 0 0 1.1em; }
+  .story h4 { font-family: Inter, system-ui, sans-serif; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--quiet); margin: 28px 0 8px; font-weight: 500; }
+  .story ul { padding-left: 1.1em; margin: 0 0 1em; }
+  .story li { margin-bottom: .4em; }
+  .story .one { font-size: 26px; line-height: 1.35; }
+  .depth { display: flex; gap: 18px; font-family: Inter, system-ui, sans-serif; font-size: 12px; color: var(--quiet); margin: 0 0 32px; padding-bottom: 12px; border-bottom: 1px solid var(--rule); }
+  .depth button { border: 0; background: none; color: var(--quiet); font: inherit; cursor: pointer; padding: 0; letter-spacing: .06em; text-transform: uppercase; }
+  .depth button.on { color: var(--accent); }
+
+  .follows { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--rule); text-align: right; }
+  .follows .label { font-family: Inter, system-ui, sans-serif; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--quiet); margin-bottom: 10px; }
+  .follows .q { text-align: right; padding: 9px 22px 9px 0; }
+  .follows .q::after { content: ""; position: absolute; right: 0; top: 17px; width: 10px; height: 1.5px; background: var(--accent); opacity: 0; transition: opacity .15s; }
+  .follows .q:hover::after { opacity: 1; }
+
+  .terms { display: grid; grid-template-columns: 130px 1fr; row-gap: 14px; column-gap: 20px; }
+  .term { display: contents; }
+  .tl { font-family: Inter, system-ui, sans-serif; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--quiet); padding-top: 5px; }
+  .tv { border-top: 1px solid var(--rule); padding-top: 4px; }
+  .term:first-child .tl { padding-top: 0; }
+  .term:first-child .tv { border-top: 0; padding-top: 0; }
+  .tn { font-size: 15.5px; color: var(--quiet); font-style: italic; margin-top: 4px; }
+  .empty { color: var(--quiet); font-style: italic; }
+  .empty .big { font-style: normal; font-size: 26px; line-height: 1.35; color: var(--ink); margin-bottom: 18px; }
+  .empty .big span { display: block; text-wrap: balance; }
+
+  @media (max-width: 860px) {
+    .frame { padding: 24px 20px 64px; }
+    .grid { grid-template-columns: 1fr; gap: 24px; }
+    .questions { position: static; max-height: none; overflow: visible; }
+    .story .asked { position: sticky; top: 0; background: var(--paper); padding: 12px 0; margin: 0; border-bottom: 1px solid var(--rule); }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+  <header>
+    <div class="name"><b>Vatroslav Mileusnić</b> &nbsp;·&nbsp; <span id="sub"></span></div>
+    <div class="hint"><span id="hintText"></span> <button class="theme-toggle" id="themeToggle"></button></div>
+  </header>
+
+  <div class="grid">
+    <nav class="questions" id="questions"></nav>
+
+    <main class="story" id="story"></main>
+  </div>
+</div>
+
+<script src="stories.js"></script>
+<script>
+  const UI = {
+    en: {
+      sub: "product manager, 13 years around software",
+      hint: "pick a question you'd ask in an interview",
+      dark: "dark", light: "light",
+      empty: '<div class="empty"><div class="big"><span>The questions on the left are the kind I get asked in interviews.</span><span>Each opens the story I\'d tell, at the depth you choose.</span></div>Start anywhere. Every story ends with related questions.</div>',
+      qhead: "Questions you'd ask me", back: "back to the start", first: "Before anything else",
+      asked: "You asked: ", termsSub: "so neither of us wastes a call",
+      termsDepth: ["one line", "the list", "with the reasons"], termsNext: "if that fits, start here",
+      depth: ["one line", "a paragraph", "the whole story"], next: "related questions"
+    },
+    hr: {
+      sub: "product manager, 13 godina u softveru",
+      hint: "izaberi pitanje koje želiš postaviti na intervjuu",
+      dark: "tamno", light: "svijetlo",
+      empty: '<div class="empty"><div class="big"><span>Lijevo su pitanja kakva dobivam na razgovorima za posao.</span><span>Svako otvara priču koju bih ispričao, kratko ili u cijelosti, kako izabereš.</span></div>Kreni bilo gdje. Svaka priča završava srodnim pitanjima.</div>',
+      qhead: "Pitanja koja mi možeš postaviti", back: "natrag na početak", first: "Prije svega",
+      asked: "Tvoje pitanje: ", termsSub: "da nijedan od nas ne potroši vrijeme na uzaludan razgovor",
+      termsDepth: ["jedna rečenica", "popis", "s razlozima"], termsNext: "ako ti to odgovara, kreni odavde",
+      depth: ["jedna rečenica", "odlomak", "cijela priča"], next: "srodna pitanja"
+    }
+  };
+  let lang = window.pageLang(), C = window.content(lang), S = C.stories, T = C.themes, U = UI[lang];
+  const order = ["origins", "data", "craft", "stakeholders", "launches", "ai"];
+  let current = null, depth = 1; // 0 rečenica, 1 odlomak, 2 puna
+
+  function setLang(l) {
+    lang = l; C = window.content(l); S = C.stories; T = C.themes; U = UI[l];
+    document.documentElement.lang = l;
+    document.getElementById("sub").textContent = U.sub;
+    document.getElementById("hintText").textContent = U.hint;
+  }
+
+  function renderQuestions() {
+    const nav = document.getElementById("questions");
+    nav.innerHTML = "";
+    const head = document.createElement("div"); head.className = "qhead"; head.textContent = U.qhead; head.title = U.back; head.addEventListener("click", () => { current = null; render(); window.scrollTo({ top: 0 }); }); nav.appendChild(head);
+    const h0 = document.createElement("div"); h0.className = "theme"; h0.textContent = U.first; nav.appendChild(h0);
+    nav.appendChild(qButton({ id: "terms", question: C.terms.question }));
+    order.forEach(t => {
+      const items = S.filter(s => s.theme === t);
+      if (!items.length) return;
+      const h = document.createElement("div"); h.className = "theme"; h.textContent = T[t]; nav.appendChild(h);
+      items.forEach(s => nav.appendChild(qButton(s)));
+    });
+  }
+
+  function qButton(s) {
+    const b = document.createElement("button");
+    b.className = "q" + (current === s.id ? " active" : "");
+    b.dataset.id = s.id;
+    b.innerHTML = s.question + '<span class="dots">' + [0,1,2].map(i => '<span class="dot' + (i <= depth ? " on" : "") + '" data-d="' + i + '"></span>').join("") + '</span>';
+    b.addEventListener("click", e => {
+      const d = e.target.dataset.d;
+      if (d !== undefined) { depth = +d; render(); } else { current = s.id; render(); toStory(); }
+    });
+    return b;
+  }
+
+  function toStory(behavior) {
+    const narrow = window.matchMedia("(max-width: 860px)").matches;
+    const top = narrow ? document.getElementById("story").getBoundingClientRect().top + window.scrollY : 0;
+    window.scrollTo({ top: top, behavior: behavior || "smooth" });
+  }
+
+  function renderTerms() {
+    const T2 = C.terms, m = document.getElementById("story");
+    const rows = T2.items.map(i => '<div class="term"><div class="tl">' + i.label + '</div><div class="tv">' + i.value + (depth === 2 && i.note ? '<div class="tn">' + i.note + '</div>' : '') + '</div></div>').join("");
+    const body = depth === 0 ? '<p class="one">' + T2.sentence + '</p>' : '<div class="terms">' + rows + '</div>';
+    m.innerHTML =
+      '<div class="asked">' + U.asked + T2.question + '</div>' +
+      '<h1>' + T2.title + '</h1>' +
+      '<div class="year">' + U.termsSub + '</div>' +
+      '<div class="depth">' + U.termsDepth.map((l, i) => '<button class="' + (i === depth ? "on" : "") + '" data-d="' + i + '">' + l + '</button>').join("") + '</div>' +
+      body +
+      '<div class="follows"><div class="label">' + U.termsNext + '</div>' +
+      ["product", "origin"].filter(id => S.some(x => x.id === id)).map(id => { const n = S.find(x => x.id === id); return '<button class="q" data-id="' + id + '">' + n.question + '</button>'; }).join("") +
+      '</div>';
+    m.querySelectorAll(".depth button").forEach(b => b.addEventListener("click", () => { depth = +b.dataset.d; render(); }));
+    m.querySelectorAll(".follows .q").forEach(b => b.addEventListener("click", () => { current = b.dataset.id; render(); toStory(); }));
+  }
+
+  function renderStory() {
+    const m = document.getElementById("story");
+    if (!current) { m.innerHTML = U.empty; return; }
+    if (current === "terms") return renderTerms();
+    const s = S.find(x => x.id === current);
+    if (!s) return;
+    const rel = s.next.map(id => S.find(x => x.id === id)).filter(Boolean);
+    const d = !s.para && depth === 1 ? 2 : depth;
+    const body = d === 0 ? '<p class="one">' + s.sentence + '</p>' : d === 1 ? '<p>' + s.para + '</p>' : s.full;
+    m.innerHTML =
+      '<div class="asked">' + U.asked + s.question + '</div>' +
+      '<h1>' + s.title + '</h1>' +
+      '<div class="year">' + s.year + '</div>' +
+      '<div class="depth">' + U.depth.map((l, i) => i === 1 && !s.para ? '' : '<button class="' + (i === d ? "on" : "") + '" data-d="' + i + '">' + l + '</button>').join("") + '</div>' +
+      body +
+      (rel.length ? '<div class="follows"><div class="label">' + U.next + '</div>' +
+      rel.map(n => '<button class="q" data-id="' + n.id + '">' + n.question + '</button>').join("") +
+      '</div>' : '');
+    m.querySelectorAll(".depth button").forEach(b => b.addEventListener("click", () => { depth = +b.dataset.d; render(); }));
+    m.querySelectorAll(".follows .q").forEach(b => b.addEventListener("click", () => { current = b.dataset.id; render(); toStory(); }));
+  }
+
+  function render() { renderQuestions(); renderStory(); if (current !== "terms") parent.postMessage({ type: "story", id: current }, "*"); }
+  setLang(lang);
+  renderQuestions(); renderStory();
+
+  const embedded = new URLSearchParams(location.search).has("embedded");
+  if (embedded) document.body.classList.add("embedded");
+  window.addEventListener("message", e => {
+    const m = e.data || {};
+    if (m.type === "open" && S.some(s => s.id === m.id)) { current = m.id; render(); toStory("instant"); }
+    if (m.type === "theme") applyTheme(m.theme || null, false);
+    if (m.type === "lang" && UI[m.lang] && m.lang !== lang) { setLang(m.lang); renderQuestions(); renderStory(); applyTheme(root.getAttribute("data-theme"), false); }
+  });
+
+  const root = document.documentElement, tg = document.getElementById("themeToggle");
+  const sysDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
+  function applyTheme(t, tell) { if (t) root.setAttribute("data-theme", t); else root.removeAttribute("data-theme"); const dark = t ? t === "dark" : sysDark(); tg.textContent = dark ? U.light : U.dark; if (tell !== false) parent.postMessage({ type: "theme", theme: t || null }, "*"); }
+  applyTheme(localStorage.getItem("ogledalo-theme"));
+  tg.addEventListener("click", () => { const dark = root.getAttribute("data-theme") ? root.getAttribute("data-theme") === "dark" : sysDark(); const next = dark ? "light" : "dark"; localStorage.setItem("ogledalo-theme", next); applyTheme(next); });
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => applyTheme(localStorage.getItem("ogledalo-theme")));
+</script>
+</body>
+</html>
