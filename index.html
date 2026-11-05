@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
 <style>
-  :root { --bar: #ecebe3; --bar-ink: #1f2a22; --bar-quiet: #6f7670; --bar-rule: #d3d4c9; --bar-accent: #3d7a4a; }
+  :root { --bar: #ecebe3; --bar-ink: #1f2a22; --bar-quiet: #6f7670; --bar-rule: #d3d4c9; --bar-accent: #3d7a4a; --bar-logo: #000; }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --bar: #1e2226; --bar-ink: #ece7dc; --bar-quiet: #8f8a80; --bar-rule: #33393f; --bar-accent: #f0a04b; }
+    :root:not([data-theme="light"]) { --bar: #1e2226; --bar-ink: #ece7dc; --bar-quiet: #8f8a80; --bar-rule: #33393f; --bar-accent: #f0a04b; --bar-logo: #fff; }
   }
-  :root[data-theme="dark"] { --bar: #1e2226; --bar-ink: #ece7dc; --bar-quiet: #8f8a80; --bar-rule: #33393f; --bar-accent: #f0a04b; }
-  :root[data-view="map"] { --bar: #e8dcc0; --bar-ink: #5a4a2a; --bar-quiet: #8a7a55; --bar-rule: #c9bb98; --bar-accent: #b3261e; }
+  :root[data-theme="dark"] { --bar: #1e2226; --bar-ink: #ece7dc; --bar-quiet: #8f8a80; --bar-rule: #33393f; --bar-accent: #f0a04b; --bar-logo: #fff; }
+  :root[data-view="map"] { --bar: #e8dcc0; --bar-ink: #5a4a2a; --bar-quiet: #8a7a55; --bar-rule: #c9bb98; --bar-accent: #b3261e; --bar-logo: #000; }
 
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bar); }
@@ -34,8 +34,9 @@
   .lang button + button { border-left: 1px solid var(--bar-rule); }
   .lang button.on { color: var(--bar-ink); box-shadow: inset 0 -2px 0 var(--bar-accent); }
   .lang button:hover { color: var(--bar-ink); }
-  .contact { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--bar-quiet); text-decoration: none; white-space: nowrap; }
-  .contact:hover { color: var(--bar-ink); }
+  .contact { display: block; line-height: 0; }
+  .contact svg { width: 18px; height: 18px; fill: var(--bar-logo); }
+  .contact:hover { opacity: .75; }
 
   .foot { flex: 0 0 auto; padding: 9px 40px; background: var(--bar); color: var(--bar-quiet); border-top: 1px solid var(--bar-rule); font-size: 11px; letter-spacing: .06em; text-align: right; transition: background .25s, color .25s; }
 
@@ -51,7 +52,6 @@
     .bar .name span, .bar .hint { display: none; }
     .bar .name { flex: 1; order: 1; }
     .bar .right { order: 2; gap: 10px; }
-    .contact { letter-spacing: .06em; }
     .switch { order: 3; width: 100%; }
     .switch button { flex: 1; padding: 9px 4px; letter-spacing: .08em; }
     .foot { padding: 8px 16px; text-align: center; }
@@ -68,7 +68,7 @@
     </div>
     <div class="right">
       <div class="hint" id="hint"></div>
-      <a class="contact" href="https://www.linkedin.com/in/vatroslav-mileusnic" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="contact" href="https://www.linkedin.com/in/vatroslav-mileusnic" target="_blank" rel="noopener" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
       <div class="lang" role="group" aria-label="Jezik / Language">
         <button data-lang="hr" lang="hr" title="Hrvatski">HR</button>
         <button data-lang="en" lang="en" title="English">EN</button>
