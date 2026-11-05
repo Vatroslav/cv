@@ -34,6 +34,8 @@
   .lang button + button { border-left: 1px solid var(--bar-rule); }
   .lang button.on { color: var(--bar-ink); box-shadow: inset 0 -2px 0 var(--bar-accent); }
   .lang button:hover { color: var(--bar-ink); }
+  .contact { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--bar-quiet); text-decoration: none; white-space: nowrap; }
+  .contact:hover { color: var(--bar-ink); }
 
   .foot { flex: 0 0 auto; padding: 9px 40px; background: var(--bar); color: var(--bar-quiet); border-top: 1px solid var(--bar-rule); font-size: 11px; letter-spacing: .06em; text-align: right; transition: background .25s, color .25s; }
 
@@ -48,7 +50,8 @@
     .bar { padding: 10px 16px; flex-wrap: wrap; gap: 10px; }
     .bar .name span, .bar .hint { display: none; }
     .bar .name { flex: 1; order: 1; }
-    .bar .right { order: 2; }
+    .bar .right { order: 2; gap: 10px; }
+    .contact { letter-spacing: .06em; }
     .switch { order: 3; width: 100%; }
     .switch button { flex: 1; padding: 9px 4px; letter-spacing: .08em; }
     .foot { padding: 8px 16px; text-align: center; }
@@ -65,6 +68,7 @@
     </div>
     <div class="right">
       <div class="hint" id="hint"></div>
+      <a class="contact" href="https://www.linkedin.com/in/vatroslav-mileusnic" target="_blank" rel="noopener">LinkedIn</a>
       <div class="lang" role="group" aria-label="Jezik / Language">
         <button data-lang="hr" lang="hr" title="Hrvatski">HR</button>
         <button data-lang="en" lang="en" title="English">EN</button>
