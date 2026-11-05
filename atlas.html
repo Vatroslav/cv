@@ -71,9 +71,6 @@
   .time input::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--red); border: 2px solid var(--sand); box-shadow: 0 0 0 1px var(--ink); cursor: pointer; }
   .time .year { font-style: italic; font-size: 20px; min-width: 120px; }
   .time .note { position: absolute; left: 0; top: 100%; margin-top: 6px; font-style: italic; font-size: 12px; opacity: .75; }
-  .zoom { position: fixed; right: 32px; bottom: 96px; display: flex; flex-direction: column; gap: 6px; }
-  .zoom button { width: 36px; height: 36px; border: 1.5px solid var(--ink); background: rgba(232,220,192,.9); font-family: "Crimson Pro", serif; font-size: 20px; cursor: pointer; color: var(--ink); }
-  .zoom .lvl { text-align: center; font-size: 12px; font-style: italic; }
   .home { position: fixed; top: 28px; left: 50%; transform: translateX(-50%); display: none; background: var(--ink); color: var(--sand); border: 0; padding: 9px 16px; font-family: "Barlow Condensed", sans-serif; letter-spacing: .2em; text-transform: uppercase; font-size: 12px; cursor: pointer; box-shadow: 0 2px 8px rgba(60,40,10,.25); }
   .zoomed .home { display: block; }
   .drawer.open ~ .home { left: calc((100vw - min(520px, 100vw)) / 2); }
@@ -191,12 +188,6 @@
   <div class="row"><svg viewBox="0 0 22 16"><rect x="2" y="2" width="18" height="12" fill="#cfd3cf"/></svg> <span id="lg3"></span></div>
 </div>
 
-<div class="zoom">
-  <button id="zin">+</button>
-  <button id="zout">&minus;</button>
-  <div class="lvl" id="lvl"></div>
-</div>
-
 <div class="time">
   <div class="lbl" id="timeLbl"></div>
   <input type="range" id="year" min="2013" max="2026" value="2026" step="1">
@@ -219,7 +210,6 @@
       hint: "Click a province to zoom in. Click a red mark to read the story of that decision. The road runs through the years.",
       note: "All of this was put together in 2026 from my memory, so I don't always know exactly when something happened.",
       legend: ["Legend", "decision", "road through the years", "not yet charted"],
-      levels: ["from the air", "the province", "up close"],
       front: "Decisions up to", today: y => y + ", today", year: y => String(y),
       months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], monthYear: (m, y) => m + " " + y,
       backAir: "back to the air", home: "← whole map", province: "province", recorded: k => k + (k === 1 ? " decision" : " decisions") + " recorded",
@@ -234,7 +224,6 @@
       hint: "Klikni na pokrajinu da je približiš. Klikni na crvenu oznaku da pročitaš priču o toj odluci. Put vodi kroz godine.",
       note: "Sve je ovo složeno 2026. po mom sjećanju, pa ne znam uvijek točno kad je što bilo.",
       legend: ["Legenda", "odluka", "put kroz godine", "još neucrtano"],
-      levels: ["iz zraka", "pokrajina", "izbliza"],
       front: "Odluke do", today: y => y + "., danas", year: y => y + ".",
       months: ["siječanj", "veljača", "ožujak", "travanj", "svibanj", "lipanj", "srpanj", "kolovoz", "rujan", "listopad", "studeni", "prosinac"], monthYear: (m, y) => m + " " + y + ".",
       backAir: "natrag u zrak", home: "← cijela karta", province: "pokrajina", recorded: k => window.plHr(k, k + " zabilježena odluka", k + " zabilježene odluke", k + " zabilježenih odluka"),
@@ -280,7 +269,6 @@
     document.getElementById("timeLbl").textContent = U.front;
     const y = +document.getElementById("year").value;
     document.getElementById("yearLbl").textContent = y === 2026 ? U.today(y) : U.year(y);
-    document.getElementById("lvl").textContent = U.levels[level - 1];
     document.getElementById("home").textContent = U.home;
   }
 
@@ -316,7 +304,6 @@
     const cx = scale === 1 ? 600 : 380, cy = 380;
     setView(scale, cx - scale * px, cy - scale * py);
     document.body.classList.toggle("zoomed", scale > 1);
-    document.getElementById("lvl").textContent = U.levels[scale === 1 ? 0 : scale < 3 ? 1 : 2];
   }
 
   function openProvince(theme) {
@@ -429,8 +416,6 @@
     if (!S.some(s => s.theme === p.dataset.theme)) { p.classList.add("uncharted"); return; }
     p.addEventListener("click", () => openProvince(p.dataset.theme));
   });
-  document.getElementById("zin").addEventListener("click", () => { if (level === 1) openProvince(activeTheme || "origins"); else if (level === 2) openBattle(S.find(s => s.theme === activeTheme).id); });
-  document.getElementById("zout").addEventListener("click", () => { if (level === 3) openProvince(activeTheme); else reset(); });
   document.addEventListener("keydown", e => { if (e.key === "Escape") { level === 3 ? openProvince(activeTheme) : reset(); } });
 
   const yr = document.getElementById("year"), yl = document.getElementById("yearLbl");
