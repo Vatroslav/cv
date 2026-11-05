@@ -10,4 +10,4 @@ Three views of the same content:
 - **By map** - the stories placed on a map of product work
 - **For AI** - everything as markdown, to paste into an AI assistant
 
-This repository holds only the published static files. The site was built with Claude Code.
+This repository holds only the published static files. Claude Code helped build the site, but all the text is Vatroslav's.
