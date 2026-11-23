@@ -118,6 +118,7 @@
       qhead: "Questions you'd ask me", back: "back to the start", first: "Before anything else",
       asked: "You asked: ", termsSub: "so neither of us wastes a call",
       termsDepth: ["one line", "the list", "with the reasons"], termsNext: "if that fits, start here",
+      valuesDepth: ["one line", "the list", "with examples"],
       depth: ["one line", "a paragraph", "the whole story"], next: "related questions"
     },
     hr: {
@@ -128,6 +129,7 @@
       qhead: "Pitanja koja mi možeš postaviti", back: "natrag na početak", first: "Prije svega",
       asked: "Tvoje pitanje: ", termsSub: "da nijedan od nas ne potroši vrijeme na uzaludan razgovor",
       termsDepth: ["jedna rečenica", "popis", "s razlozima"], termsNext: "ako ti to odgovara, kreni odavde",
+      valuesDepth: ["jedna rečenica", "popis", "s primjerima"],
       depth: ["jedna rečenica", "odlomak", "cijela priča"], next: "srodna pitanja"
     }
   };
@@ -148,6 +150,7 @@
     const head = document.createElement("div"); head.className = "qhead"; head.textContent = U.qhead; head.title = U.back; head.addEventListener("click", () => { current = null; render(); window.scrollTo({ top: 0 }); }); nav.appendChild(head);
     const h0 = document.createElement("div"); h0.className = "theme"; h0.textContent = U.first; nav.appendChild(h0);
     nav.appendChild(qButton({ id: "terms", question: C.terms.question }));
+    nav.appendChild(qButton({ id: "values", question: C.values.question }));
     order.forEach(t => {
       const items = S.filter(s => s.theme === t);
       if (!items.length) return;
@@ -174,27 +177,31 @@
     window.scrollTo({ top: top, behavior: behavior || "smooth" });
   }
 
-  function renderTerms() {
-    const T2 = C.terms, m = document.getElementById("story");
-    const rows = T2.items.map(i => '<div class="term"><div class="tl">' + i.label + '</div><div class="tv">' + i.value + (depth === 2 && i.note ? '<div class="tn">' + i.note + '</div>' : '') + '</div></div>').join("");
-    const body = depth === 0 ? '<p class="one">' + T2.sentence + '</p>' : '<div class="terms">' + rows + '</div>';
+  function renderBlock(B, sub, depthLabels, nextLabel, relIds) {
+    const m = document.getElementById("story");
+    const rows = B.items.map(i => '<div class="term"><div class="tl">' + i.label + '</div><div class="tv">' + i.value + (depth === 2 && i.note ? '<div class="tn">' + i.note + '</div>' : '') + '</div></div>').join("");
+    const body = depth === 0 ? '<p class="one">' + B.sentence + '</p>' : '<div class="terms">' + rows + '</div>';
+    const rel = relIds.map(id => S.find(x => x.id === id)).filter(Boolean);
     m.innerHTML =
-      '<div class="asked">' + U.asked + T2.question + '</div>' +
-      '<h1>' + T2.title + '</h1>' +
-      '<div class="year">' + U.termsSub + '</div>' +
-      '<div class="depth">' + U.termsDepth.map((l, i) => '<button class="' + (i === depth ? "on" : "") + '" data-d="' + i + '">' + l + '</button>').join("") + '</div>' +
+      '<div class="asked">' + U.asked + B.question + '</div>' +
+      '<h1>' + B.title + '</h1>' +
+      '<div class="year">' + sub + '</div>' +
+      '<div class="depth">' + depthLabels.map((l, i) => '<button class="' + (i === depth ? "on" : "") + '" data-d="' + i + '">' + l + '</button>').join("") + '</div>' +
       body +
-      '<div class="follows"><div class="label">' + U.termsNext + '</div>' +
-      ["product", "origin"].filter(id => S.some(x => x.id === id)).map(id => { const n = S.find(x => x.id === id); return '<button class="q" data-id="' + id + '">' + n.question + '</button>'; }).join("") +
-      '</div>';
+      (rel.length ? '<div class="follows"><div class="label">' + nextLabel + '</div>' +
+      rel.map(n => '<button class="q" data-id="' + n.id + '">' + n.question + '</button>').join("") +
+      '</div>' : '');
     m.querySelectorAll(".depth button").forEach(b => b.addEventListener("click", () => { depth = +b.dataset.d; render(); }));
     m.querySelectorAll(".follows .q").forEach(b => b.addEventListener("click", () => { current = b.dataset.id; render(); toStory(); }));
   }
+  function renderTerms() { renderBlock(C.terms, U.termsSub, U.termsDepth, U.termsNext, ["product", "origin"]); }
+  function renderValues() { renderBlock(C.values, "", U.valuesDepth, U.next, ["review", "room", "origin"]); }
 
   function renderStory() {
     const m = document.getElementById("story");
     if (!current) { m.innerHTML = U.empty; return; }
     if (current === "terms") return renderTerms();
+    if (current === "values") return renderValues();
     const s = S.find(x => x.id === current);
     if (!s) return;
     const rel = s.next.map(id => S.find(x => x.id === id)).filter(Boolean);
@@ -213,7 +220,7 @@
     m.querySelectorAll(".follows .q").forEach(b => b.addEventListener("click", () => { current = b.dataset.id; render(); toStory(); }));
   }
 
-  function render() { renderQuestions(); renderStory(); if (current !== "terms") parent.postMessage({ type: "story", id: current }, "*"); }
+  function render() { renderQuestions(); renderStory(); if (current !== "terms" && current !== "values") parent.postMessage({ type: "story", id: current }, "*"); }
   setLang(lang);
   renderQuestions(); renderStory();
 

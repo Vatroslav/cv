@@ -55,6 +55,7 @@
   .cartouche .rule { border-top: 1px solid var(--ink); margin: 10px 0; }
   .cartouche .hint { font-size: 14px; line-height: 1.4; }
   .cartouche .terms-btn { margin-top: 12px; width: 100%; background: var(--ink); color: var(--sand); border: 0; padding: 9px 12px; font-family: "Barlow Condensed", sans-serif; letter-spacing: .2em; text-transform: uppercase; font-size: 12px; cursor: pointer; }
+  .cartouche .terms-btn + .terms-btn { margin-top: 6px; }
   .drawer .term { display: grid; grid-template-columns: 120px 1fr; gap: 14px; border-top: 1px solid var(--ink-light); padding: 12px 0; }
   .drawer .term .tl { font-family: "Barlow Condensed", sans-serif; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; font-size: 12px; color: var(--red); padding-top: 3px; }
   .drawer .term .tv { font-size: 17px; line-height: 1.45; }
@@ -179,6 +180,7 @@
   <div class="rule"></div>
   <div class="hint" id="cHint"></div>
   <button class="terms-btn" id="termsBtn"></button>
+  <button class="terms-btn" id="valuesBtn"></button>
 </div>
 
 <div class="legend">
@@ -214,7 +216,8 @@
       months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], monthYear: (m, y) => m + " " + y,
       backAir: "back to the air", home: "← whole map", province: "province", recorded: k => k + (k === 1 ? " decision" : " decisions") + " recorded",
       backProvince: "back to the province", dispatch: "decision", shorter: "shorter", full: "read the whole story", related: "related decisions",
-      close: "close", campaign: "before anything else", termsSub: "so neither of us wastes a call", withReasons: "with the reasons", withoutReasons: "without the reasons"
+      close: "close", campaign: "before anything else", termsSub: "so neither of us wastes a call", withReasons: "with the reasons", withoutReasons: "without the reasons",
+      withExamples: "with examples", withoutExamples: "without examples"
     },
     hr: {
       sea: "More još neizmjerenog",
@@ -228,7 +231,8 @@
       months: ["siječanj", "veljača", "ožujak", "travanj", "svibanj", "lipanj", "srpanj", "kolovoz", "rujan", "listopad", "studeni", "prosinac"], monthYear: (m, y) => m + " " + y + ".",
       backAir: "natrag u zrak", home: "← cijela karta", province: "pokrajina", recorded: k => window.plHr(k, k + " zabilježena odluka", k + " zabilježene odluke", k + " zabilježenih odluka"),
       backProvince: "natrag na pokrajinu", dispatch: "odluka", shorter: "kraće", full: "pročitaj cijelu priču", related: "srodne odluke",
-      close: "zatvori", campaign: "prije svega", termsSub: "da nijedan od nas ne potroši vrijeme na uzaludan razgovor", withReasons: "s razlozima", withoutReasons: "bez razloga"
+      close: "zatvori", campaign: "prije svega", termsSub: "da nijedan od nas ne potroši vrijeme na uzaludan razgovor", withReasons: "s razlozima", withoutReasons: "bez razloga",
+      withExamples: "s primjerima", withoutExamples: "bez primjera"
     }
   };
   let lang = window.pageLang(), C = window.content(lang), S = C.stories, T = C.themes, U = UI[lang];
@@ -265,6 +269,7 @@
     document.getElementById("cHint").textContent = U.hint;
     document.getElementById("cNote").textContent = U.note;
     document.getElementById("termsBtn").textContent = C.terms.title;
+    document.getElementById("valuesBtn").textContent = C.values.title;
     ["lgT", "lg1", "lg2", "lg3"].forEach((id, i) => { document.getElementById(id).textContent = U.legend[i]; });
     document.getElementById("timeLbl").textContent = U.front;
     const y = +document.getElementById("year").value;
@@ -344,21 +349,23 @@
     d.querySelectorAll(".nextbar button").forEach(b => b.addEventListener("click", () => { showFull = false; openBattle(b.dataset.id); }));
   }
 
-  let termsFull = false;
-  function openTerms() {
-    const T2 = C.terms, d = document.getElementById("drawer");
-    drawerMode = "terms";
+  const blockFull = { terms: false, values: false };
+  function openBlock(kind) {
+    const B = C[kind], d = document.getElementById("drawer"), full = blockFull[kind];
+    const more = kind === "terms" ? [U.withReasons, U.withoutReasons] : [U.withExamples, U.withoutExamples];
+    drawerMode = kind;
     d.innerHTML = '<button class="close" id="dclose">' + U.close + '</button>' +
-      '<div class="kicker">' + U.campaign + '</div><h2>' + T2.title + '</h2>' +
-      '<div class="when">' + U.termsSub + '</div>' +
-      '<div class="body"><p>' + T2.sentence + '</p></div>' +
-      T2.items.map(i => '<div class="term"><div class="tl">' + i.label + '</div><div class="tv">' + i.value + (termsFull && i.note ? '<div class="tn">' + i.note + '</div>' : '') + '</div></div>').join("") +
-      '<button class="more ' + (termsFull ? "on" : "") + '" id="more" style="margin-top:18px">' + (termsFull ? U.withoutReasons : U.withReasons) + '</button>';
+      '<div class="kicker">' + U.campaign + '</div><h2>' + B.title + '</h2>' +
+      (kind === "terms" ? '<div class="when">' + U.termsSub + '</div>' : '') +
+      '<div class="body"><p>' + B.sentence + '</p></div>' +
+      B.items.map(i => '<div class="term"><div class="tl">' + i.label + '</div><div class="tv">' + i.value + (full && i.note ? '<div class="tn">' + i.note + '</div>' : '') + '</div></div>').join("") +
+      '<button class="more ' + (full ? "on" : "") + '" id="more" style="margin-top:18px">' + (full ? more[1] : more[0]) + '</button>';
     d.classList.add("open"); d.scrollTop = 0;
     d.querySelector("#dclose").addEventListener("click", () => { d.classList.remove("open"); drawerMode = null; });
-    d.querySelector("#more").addEventListener("click", () => { termsFull = !termsFull; openTerms(); });
+    d.querySelector("#more").addEventListener("click", () => { blockFull[kind] = !full; openBlock(kind); });
   }
-  document.getElementById("termsBtn").addEventListener("click", openTerms);
+  document.getElementById("termsBtn").addEventListener("click", () => openBlock("terms"));
+  document.getElementById("valuesBtn").addEventListener("click", () => openBlock("values"));
 
   window.addEventListener("message", e => {
     const m = e.data || {};
@@ -372,7 +379,7 @@
     const keepFull = showFull;
     if (drawerMode === "battle" && activeBattle) { showFull = keepFull; openBattle(activeBattle); }
     else if (drawerMode === "province" && activeTheme) openProvince(activeTheme);
-    else if (drawerMode === "terms") openTerms();
+    else if (drawerMode === "terms" || drawerMode === "values") openBlock(drawerMode);
   }
 
   function reset() {

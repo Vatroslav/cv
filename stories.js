@@ -290,6 +290,30 @@ window.TERMS_HR = {
   ]
 };
 
+window.VALUES = {
+  question: "What matters to you at work?",
+  title: "Values at work",
+  sentence: "Honesty, trust, accountability and fairness.",
+  items: [
+    { label: "Honesty", value: "I say how things are, even when it doesn't work in my favour.", note: "In June 2026 we published that team leads earn less than seniors with no direct reports. When it turned out we had been wrong, I posted a correction in September on LinkedIn, Facebook and Instagram. A large institution asked us for a salary survey covering every role they had. I wrote back that this was a job for a consulting firm and offered only the part Tabu could do well." },
+    { label: "Trust", value: "People and companies trust Tabu with salary data. That trust matters more to me than making money.", note: "When a user asks for their data to be deleted, I delete it first and only then ask why. I don't try to talk them into staying. I don't name Tabu's clients in job interviews or on this page, even though well-known names would help me." },
+    { label: "Accountability", value: "When I get something wrong, I tell the people it affected.", note: "From April 2026, the app showed users who run a sole proprietorship or their own company a wrong figure instead of the salary they had entered themselves. When we found out, we corrected the data, and in September I sent them an apology. One user wrote back that the problem with updating the data was on his end. I replied that it was on us too, because it is our job to make that as easy as possible for him." },
+    { label: "Fairness", value: "Salary secrecy benefits companies and the few people who negotiate very high salaries. That is why I am for transparency.", note: "In November 2026 I took part, under my own name, in the public consultation on the draft of Croatia's Labour Act. I proposed that employers must state the salary or salary range in job ads. If salaries are in job ads, people may no longer need Tabu. I am fine with that." }
+  ]
+};
+
+window.VALUES_HR = {
+  question: "Što ti je važno u radu?",
+  title: "Vrijednosti u radu",
+  sentence: "Iskrenost, povjerenje, odgovornost i pravednost.",
+  items: [
+    { label: "Iskrenost", value: "Govorim kako stvari stoje, i kad to ne ide u moju korist.", note: "U lipnju 2026. objavili smo da voditelji timova zarađuju manje od seniora koji nemaju podređene. Kad se pokazalo da smo bili u krivu, u rujnu sam na LinkedInu, Facebooku i Instagramu objavio ispravak. Velika institucija tražila je od nas istraživanje plaća za sva svoja radna mjesta. Napisao sam da je to posao za konzultantsku kuću i ponudio samo dio koji Tabu može dobro odraditi." },
+    { label: "Povjerenje", value: "Ljudi i firme povjeravaju Tabuu podatke o plaćama. To povjerenje mi je važnije od zarade.", note: "Kad korisnik zatraži brisanje podataka, prvo ih obrišem, a tek onda pitam za razlog. Ne pokušavam ga zadržati. Klijente Tabua ne imenujem ni u razgovorima za posao ni na ovoj stranici, iako bi mi poznata imena pomogla." },
+    { label: "Odgovornost", value: "Kad pogriješim, kažem to onima koje je greška pogodila.", note: "Korisnicima s obrtom ili vlastitom firmom aplikacija je od travnja 2026. prikazivala pogrešnu brojku umjesto plaće koju su sami upisali. Kad smo to otkrili, ispravili smo podatke, a ja sam im u rujnu poslao ispriku. Jedan korisnik mi je napisao da je problem oko ažuriranja podataka do njega. Odgovorio sam da je i do nas, jer je na nama da mu to bude što lakše." },
+    { label: "Pravednost", value: "Od tajnosti plaća profitiraju firme i oni rijetki koji ispregovaraju jako visoke plaće. Zato sam za transparentnost.", note: "U studenom 2026. sudjelovao sam pod svojim imenom u javnom savjetovanju o nacrtu Zakona o radu. Predložio sam da poslodavci u oglasu moraju navesti iznos ili raspon plaće. Ako plaće budu u oglasima, ljudima Tabu možda više neće trebati. Pristajem na to." }
+  ]
+};
+
 window.pageLang = function () {
   const q = new URLSearchParams(location.search).get("lang");
   if (q === "hr" || q === "en") return q;
@@ -304,7 +328,8 @@ window.content = function (lang) {
   return {
     stories: window.STORIES.map(s => hr && s.hr ? Object.assign({}, s, s.hr, { year: s.year.replace(/\d{4}/g, "$&.") }) : s),
     themes: hr ? window.THEMES_HR : window.THEMES,
-    terms: hr ? window.TERMS_HR : window.TERMS
+    terms: hr ? window.TERMS_HR : window.TERMS,
+    values: hr ? window.VALUES_HR : window.VALUES
   };
 };
 

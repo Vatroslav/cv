@@ -90,7 +90,7 @@
       sub: "product manager, 13 years around software",
       hint: "the same content, for reading by machine",
       dark: "dark", light: "light",
-      leadOne: () => "Everything on this page as one markdown file - the terms, and all " + window.storyCount("en") + " stories at full length.",
+      leadOne: () => "Everything on this page as one markdown file - the terms, my values at work, and all " + window.storyCount("en") + " stories at full length.",
       lead: "If you would rather have an assistant read it than click through it: take the file, give it your job description, and ask where I fit and where I do not. Nothing is held back for the human version.",
       copy: "Copy markdown", download: "Download .md", copied: "Copied", words: k => k.toLocaleString("en") + " words",
       promptLabel: "a prompt to start from",
@@ -98,7 +98,7 @@
       copyPrompt: "Copy prompt", inFile: "what is in the file", file: "vatroslav-mileusnic.md",
       md: {
         context: "Product manager, 13 years around software. Based near Zagreb, Croatia, working remotely.",
-        about: today => "This file is the whole of my page for recruiters: the terms I am looking for, and every story at full length. Exported " + today + ". The stories are built from my own words; the headings above them are the kind of questions I get asked in interviews.",
+        about: today => "This file is the whole of my page for recruiters: the terms I am looking for, my values at work, and every story at full length. Exported " + today + ". The stories are built from my own words; the headings above them are the kind of questions I get asked in interviews.",
         oneLine: "In one line: ", follow: "Related questions: "
       }
     },
@@ -106,7 +106,7 @@
       sub: "product manager, 13 godina u softveru",
       hint: "isti sadržaj, za strojno čitanje",
       dark: "tamno", light: "svijetlo",
-      leadOne: () => { const w = window.storyCount("hr"); return "Sve s ove stranice kao jedan markdown file - uvjeti i " + window.plHr(n, "jedna priča", "sve " + w + " priče", "svih " + w + " priča") + " u punoj duljini."; },
+      leadOne: () => { const w = window.storyCount("hr"); return "Sve s ove stranice kao jedan markdown file - uvjeti, vrijednosti u radu i " + window.plHr(n, "jedna priča", "sve " + w + " priče", "svih " + w + " priča") + " u punoj duljini."; },
       lead: "Ako ti je draže da sadržaj umjesto tebe pročita asistent: uzmi file, daj mu svoj opis posla i pitaj ga gdje se uklapam, a gdje ne. Ništa nije zadržano samo za ljudsku verziju.",
       copy: "Kopiraj markdown", download: "Preuzmi .md", copied: "Kopirano", words: k => k.toLocaleString("hr") + " " + window.plHr(k, "riječ", "riječi", "riječi"),
       promptLabel: "prompt za početak",
@@ -114,12 +114,12 @@
       copyPrompt: "Kopiraj prompt", inFile: "što je u fileu", file: "vatroslav-mileusnic-hr.md",
       md: {
         context: "Product manager, 13 godina u softveru. Živim blizu Zagreba i radim remote.",
-        about: today => { const [y, m, d] = today.split("-"); return "Ovaj file je cijela moja stranica za recruitere: uvjeti koje tražim i svaka priča u punoj duljini. Izvezeno " + (+d) + "." + (+m) + "." + y + ". Priče su složene od mojih riječi; naslovi iznad njih su pitanja kakva dobivam na razgovorima za posao."; },
+        about: today => { const [y, m, d] = today.split("-"); return "Ovaj file je cijela moja stranica za recruitere: uvjeti koje tražim, vrijednosti u radu i svaka priča u punoj duljini. Izvezeno " + (+d) + "." + (+m) + "." + y + ". Priče su složene od mojih riječi; naslovi iznad njih su pitanja kakva dobivam na razgovorima za posao."; },
         oneLine: "U jednoj rečenici: ", follow: "Srodna pitanja: "
       }
     }
   };
-  let lang = window.pageLang(), C = window.content(lang), S = C.stories, T = C.themes, TERMS = C.terms, U = UI[lang];
+  let lang = window.pageLang(), C = window.content(lang), S = C.stories, T = C.themes, TERMS = C.terms, VALUES = C.values, U = UI[lang];
   const order = ["origins", "data", "craft", "stakeholders", "launches", "ai"];
 
   function htmlToMd(html) {
@@ -149,6 +149,15 @@
     L.push("*" + TERMS.question + "*");
     L.push(U.md.oneLine + TERMS.sentence);
     TERMS.items.forEach(i => {
+      L.push("### " + i.label);
+      L.push(i.value);
+      if (i.note) L.push(i.note);
+    });
+
+    L.push("## " + VALUES.title);
+    L.push("*" + VALUES.question + "*");
+    L.push(U.md.oneLine + VALUES.sentence);
+    VALUES.items.forEach(i => {
       L.push("### " + i.label);
       L.push(i.value);
       if (i.note) L.push(i.note);
@@ -228,7 +237,7 @@
     const m = e.data || {};
     if (m.type === "theme") applyTheme(m.theme, false);
     if (m.type === "lang" && UI[m.lang] && m.lang !== lang) {
-      lang = m.lang; C = window.content(lang); S = C.stories; T = C.themes; TERMS = C.terms; U = UI[lang];
+      lang = m.lang; C = window.content(lang); S = C.stories; T = C.themes; TERMS = C.terms; VALUES = C.values; U = UI[lang];
       renderAll(); applyTheme(root.getAttribute("data-theme"), false);
     }
   });
